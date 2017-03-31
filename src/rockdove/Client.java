@@ -1,3 +1,4 @@
+package rockdove;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -6,18 +7,30 @@ import java.nio.ByteBuffer;
 import java.nio.channels.*;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 
-public class Client {
+
+public class Client extends Thread {
 
     public Client()                 {    init();    }
 
     // Public
     // ------------------------------------------------------------------------
     static public void main(String[] args){
-        ClientOld a = new ClientOld();
+        Client a = new Client();
         try {
             a.mainLoop();
         } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void run(){
+        try {
+            mainLoop();
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -39,14 +52,17 @@ public class Client {
     private void getInput() throws IOException {
         int size;
 
-        if (_in.available() == 0)
+        if (_in.available() <= 0)
             return;
 
         size = _in.read(_in_buffer, 0, 100);
 
-        if (size == 0)
+        if (size == 0) {
+            _log.info("Read empty input!");
             return;
+        }
 
+        OutDevice.printLineInfo();
         sendData(ByteBuffer.wrap(_in_buffer));
         OutDevice.line();
     }
@@ -63,6 +79,7 @@ public class Client {
     private BufferedInputStream _in;
     private byte[]              _in_buffer;
     private SocketChannel       _sender;
+    private Logger              _log;
 
     // Constants
     // ------------------------------------------------------------------------
@@ -70,13 +87,13 @@ public class Client {
     public static final String SENDER_ADD      = "localhost";
     public static final int    IN_BUFFER_SIZE  = 100;
 
+
     // ------------------------------------------------------------------------
     private void init()
     {
+        _log = LogManager.getLogger("Debug");
         _in = new BufferedInputStream(System.in);
         _in_buffer = new byte[IN_BUFFER_SIZE];
-
-        OutDevice.printLineInfo();
 
         try{
             _sender = SocketChannel.open();

@@ -1,3 +1,4 @@
+package rockdove;
 
 import java.io.IOException;
 import java.net.BindException;
@@ -8,22 +9,15 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 
-public class Server {
+public abstract class Server {
     public Server()                 {    init();    }
 
     // Public
     // ------------------------------------------------------------------------
-    static public void main(String[] args){
-
-        Server a = new Server();
-        try {
-            a.mainLoop();
-        } catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
     public void mainLoop() throws Exception{
         while (true){
             runOnce();
@@ -43,9 +37,7 @@ public class Server {
 
     // Private
     // ------------------------------------------------------------------------
-    protected void handleClient() throws IOException{
-
-    }
+    protected abstract void handleClient() throws IOException;
 
     protected void readData(SocketChannel channel) throws IOException{
         _out_buffer.clear();
@@ -68,6 +60,7 @@ public class Server {
     protected ServerSocketChannel _receiver;
     protected ByteBuffer          _out_buffer;
     protected int                 _port_offset;
+    protected Logger              _log;
 
     // Constants
     // ------------------------------------------------------------------------
@@ -85,22 +78,28 @@ public class Server {
                 _receiver.configureBlocking(false);
                 break;
             } catch (BindException e){
-                System.err.print("Port in use trying: [Port= ");
-                System.err.print(RECEIVER_PORT + _port_offset);
-                System.err.println("]");
-
                 _port_offset += 1;
+                _log.info("Port in use trying: [Port= " +
+                        Integer.toString(RECEIVER_PORT + _port_offset) + "]");
             } catch (IOException e) {
                 // unhandled error
                 e.printStackTrace();
+                _log.error("Unhandled exception: " + e.getMessage());
                 break;
             }
         }
     }
 
+    private void initLog(){
+        BasicConfigurator.configure();
+        _log = LogManager.getLogger("debug");
+    }
+
     private void init()
     {
         _out_buffer = ByteBuffer.allocate(OUT_BUFFER_SIZE);
+
+        initLog();
         initServerSocket();
     }
 }

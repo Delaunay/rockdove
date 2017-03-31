@@ -1,17 +1,14 @@
+package rockdove;
+
 import java.io.IOException;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
-/**
- * Created by newton on 2017-03-31.
- */
+
 public class ServerList extends Server{
     ServerList(){
+        super();
         _clients = new LinkedList<>();
     }
 
@@ -33,7 +30,6 @@ public class ServerList extends Server{
     protected void handleClient() throws IOException{
         for(SocketChannel client : _clients){
             if (client.isConnected()){
-                // This might be blocking
                 readData(client);
             } else {
                 _clients.remove(client);

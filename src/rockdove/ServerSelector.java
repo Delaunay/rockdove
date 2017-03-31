@@ -1,3 +1,5 @@
+package rockdove;
+
 import java.io.IOException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -8,6 +10,7 @@ import java.util.Set;
 
 public class ServerSelector extends Server {
     ServerSelector() throws IOException{
+        super();
         _selector = Selector.open();
     }
 
@@ -38,25 +41,31 @@ public class ServerSelector extends Server {
             SocketChannel c = (SocketChannel) key.channel();
 
             if (key.isAcceptable()){
-                OutDevice.printString("We are ready to accept new connection: " + c.toString());
+                _log.info("Accepting connection");
+                OutDevice.printString("We are ready to accept new connection: "
+                        + c.toString());
                 c.register(_selector, SelectionKey.OP_READ);
 
             } else if (key.isConnectable()) {
                 if (c.isConnectionPending()){
+                    _log.info("Pending");
                     //printString("Connection Pending: " + c.toString());
                 }
                 else {
+                    _log.info("we are connected to a client");
                     OutDevice.printString("We connected to: " + c.toString());
                     c.register(_selector, SelectionKey.OP_WRITE);
                 }
 
             } else if (key.isReadable()) {
+                _log.info("Receiving data");
                 readData(c);
+                _log.info("We received data");
                 OutDevice.printString("Receiving data: " + c.toString());
                 c.register(_selector, SelectionKey.OP_READ);
 
             } else if (key.isWritable()) {
-                OutDevice.printString("Useless? " + c.toString());
+                _log.info("Useless Branch ? " + c.toString());
             }
 
             key_it.remove();
