@@ -9,9 +9,13 @@ import java.util.Set;
 
 
 public class ServerSelector extends Server {
-    ServerSelector() throws IOException{
+    public ServerSelector() {
         super();
-        _selector = Selector.open();
+        try {
+            _selector = Selector.open();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -19,6 +23,7 @@ public class ServerSelector extends Server {
         SocketChannel client = _receiver.accept();
 
         if (client != null){
+            _log.info("Server: Accepting Connection");
             client.configureBlocking(false);
             client.register(_selector, SelectionKey.OP_CONNECT);
         }
@@ -40,13 +45,7 @@ public class ServerSelector extends Server {
             SelectionKey key = key_it.next();
             SocketChannel c = (SocketChannel) key.channel();
 
-            if (key.isAcceptable()){
-                _log.info("Accepting connection");
-                OutDevice.printString("We are ready to accept new connection: "
-                        + c.toString());
-                c.register(_selector, SelectionKey.OP_READ);
-
-            } else if (key.isConnectable()) {
+            if (key.isConnectable()) {
                 if (c.isConnectionPending()){
                     _log.info("Pending");
                     //printString("Connection Pending: " + c.toString());
@@ -65,6 +64,8 @@ public class ServerSelector extends Server {
                 c.register(_selector, SelectionKey.OP_READ);
 
             } else if (key.isWritable()) {
+                _log.info("Useless Branch ? " + c.toString());
+            } else if (key.isAcceptable()){
                 _log.info("Useless Branch ? " + c.toString());
             }
 

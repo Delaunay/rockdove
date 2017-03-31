@@ -11,21 +11,12 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 
-public class Client extends Thread {
+public class Client implements Runnable {
 
     public Client()                 {    init();    }
 
     // Public
     // ------------------------------------------------------------------------
-    static public void main(String[] args){
-        Client a = new Client();
-        try {
-            a.mainLoop();
-        } catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
     @Override
     public void run(){
         try {
@@ -44,6 +35,22 @@ public class Client extends Thread {
 
     public void runOnce() throws Exception {
         getInput();
+    }
+
+    public void sendData(ByteBuffer buffer) throws IOException {
+        _log.info("Client: Sending data");
+        while(buffer.hasRemaining()){
+            int written = _sender.write(buffer);
+            _log.info("Client: " + Integer.toString(written) + " bytes were written to Remote");
+        }
+    }
+
+    public boolean finishConnect() throws IOException {
+        return _sender.finishConnect();
+    }
+
+    public boolean connected(){
+        return _sender.isConnected();
     }
 
     // Private
@@ -67,13 +74,6 @@ public class Client extends Thread {
         OutDevice.line();
     }
 
-    private void sendData(ByteBuffer buffer) throws IOException {
-        buffer.flip();
-        while(buffer.hasRemaining()){
-            _sender.write(buffer);
-        }
-    }
-
     //  std::io
     // ------------------------------------------------------------------------
     private BufferedInputStream _in;
@@ -83,9 +83,9 @@ public class Client extends Thread {
 
     // Constants
     // ------------------------------------------------------------------------
-    public static final int    SENDER_PORT     = 81;
-    public static final String SENDER_ADD      = "localhost";
-    public static final int    IN_BUFFER_SIZE  = 100;
+    public static int    SENDER_PORT     = 81;
+    public static String SENDER_ADD      = "localhost";
+    public static int    IN_BUFFER_SIZE  = 100;
 
 
     // ------------------------------------------------------------------------
@@ -99,6 +99,13 @@ public class Client extends Thread {
             _sender = SocketChannel.open();
             _sender.configureBlocking(false);
             _sender.connect(new InetSocketAddress(SENDER_ADD, SENDER_PORT));
+            _log.info("Client.init done");
+
+            if (_sender.finishConnect())
+                _log.info("Client: Connected to remote");
+            else
+                _log.info("Client: Connection to remote pending");
+            
         } catch (IOException e){
             e.printStackTrace();
         }

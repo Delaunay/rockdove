@@ -1,9 +1,9 @@
 package rockdove;
 
 public class OutDevice {
-    public static void printString(String a){
-        if (a.length() > 0) {
-            System.out.println(a);
+    public static void printString(String msg){
+        if (msg.length() > 0) {
+            System.out.println(msg);
             printLineInfo();
         }
     }

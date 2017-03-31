@@ -7,7 +7,7 @@ import java.util.List;
 
 
 public class ServerList extends Server{
-    ServerList(){
+    public ServerList(){
         super();
         _clients = new LinkedList<>();
     }
@@ -17,6 +17,7 @@ public class ServerList extends Server{
         SocketChannel client = _receiver.accept();
 
         if (client != null){
+            _log.info("Server: Accepting Connection");
             client.configureBlocking(false);
             _clients.add(client);
         }

@@ -3,21 +3,31 @@ package rockdove;
 import java.io.IOException;
 import java.net.BindException;
 import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
 
+import java.nio.ByteBuffer;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+
 import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
-public abstract class Server {
+public abstract class Server implements Runnable {
     public Server()                 {    init();    }
 
     // Public
     // ------------------------------------------------------------------------
+    @Override
+    public void run(){
+        try {
+            mainLoop();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public void mainLoop() throws Exception{
         while (true){
             runOnce();
@@ -25,15 +35,7 @@ public abstract class Server {
         }
     }
 
-    public void runOnce() throws IOException{
-        SocketChannel client = _receiver.accept();
-
-        if (client != null){
-            client.configureBlocking(false);
-        }
-
-        handleClient();
-    }
+    public abstract void runOnce() throws IOException;
 
     // Private
     // ------------------------------------------------------------------------
@@ -52,7 +54,7 @@ public abstract class Server {
 
     protected void printData(ByteBuffer b){
         b.flip(); // <- Make sure we print everything
-        System.out.print(b.asCharBuffer().toString());
+        OutDevice.printString(b.asCharBuffer().toString());
     }
 
     //  Network
@@ -64,14 +66,14 @@ public abstract class Server {
 
     // Constants
     // ------------------------------------------------------------------------
-    public static final int    RECEIVER_PORT   = 80;
-    public static final int    OUT_BUFFER_SIZE = 100;
+    public static int    RECEIVER_PORT   = 80;
+    public static int    OUT_BUFFER_SIZE = 100;
 
     // ------------------------------------------------------------------------
     private void initServerSocket(){
         _port_offset = 0;
 
-        while(true) {
+        while(_port_offset < 10) {
             try {
                 _receiver = ServerSocketChannel.open();
                 _receiver.bind(new InetSocketAddress(RECEIVER_PORT + _port_offset));
@@ -95,11 +97,10 @@ public abstract class Server {
         _log = LogManager.getLogger("debug");
     }
 
-    private void init()
-    {
+    private void init(){
         _out_buffer = ByteBuffer.allocate(OUT_BUFFER_SIZE);
-
         initLog();
         initServerSocket();
+        _log.info("Server.init done");
     }
 }
