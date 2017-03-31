@@ -94,7 +94,7 @@ public class DummyServer {
             _selector = Selector.open();
 
             _receiver = ServerSocketChannel.open();
-            _receiver.bind(new InetSocketAddress(Client.SENDER_PORT));
+            _receiver.bind(new InetSocketAddress(ClientOld.SENDER_PORT));
             _receiver.configureBlocking(false);
 
         } catch (IOException e){
