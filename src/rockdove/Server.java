@@ -53,8 +53,7 @@ public abstract class Server implements Runnable {
     }
 
     protected void printData(ByteBuffer b){
-        b.flip(); // <- Make sure we print everything
-        OutDevice.printString(b.asCharBuffer().toString());
+        OutDevice.printBuffer(b);
     }
 
     //  Network

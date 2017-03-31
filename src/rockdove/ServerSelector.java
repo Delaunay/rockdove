@@ -25,7 +25,7 @@ public class ServerSelector extends Server {
         if (client != null){
             _log.info("Server: Accepting Connection");
             client.configureBlocking(false);
-            client.register(_selector, SelectionKey.OP_CONNECT);
+            client.register(_selector, SelectionKey.OP_READ);
         }
 
         int client_ready = _selector.selectNow(); //.select(10);
@@ -60,8 +60,8 @@ public class ServerSelector extends Server {
                 _log.info("Receiving data");
                 readData(c);
                 _log.info("We received data");
-                OutDevice.printString("Receiving data: " + c.toString());
-                c.register(_selector, SelectionKey.OP_READ);
+                //OutDevice.printString("Receiving data: " + c.toString());
+                //c.register(_selector, SelectionKey.OP_WRITE);
 
             } else if (key.isWritable()) {
                 _log.info("Useless Branch ? " + c.toString());

@@ -1,11 +1,19 @@
 package rockdove;
 
+import java.nio.ByteBuffer;
+
 public class OutDevice {
     public static void printString(String msg){
         if (msg.length() > 0) {
             System.out.println(msg);
             printLineInfo();
         }
+    }
+
+    public static void printBuffer(ByteBuffer b){
+        for(int i = 0; i < b.limit(); ++i)
+            System.out.print((char) b.get(i));
+        printLineInfo();
     }
 
     public static void printLineInfo(){

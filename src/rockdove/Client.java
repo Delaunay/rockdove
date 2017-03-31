@@ -105,7 +105,7 @@ public class Client implements Runnable {
                 _log.info("Client: Connected to remote");
             else
                 _log.info("Client: Connection to remote pending");
-            
+
         } catch (IOException e){
             e.printStackTrace();
         }

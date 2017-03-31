@@ -39,7 +39,7 @@ public class ClientTest {
 
             client.sendData(ByteBuffer.wrap(txt.getBytes()));
             assertEquals(0, 0);
-            return;
+            //return;
         } catch (Exception e) {
             e.printStackTrace();
             assertEquals(0, k);
